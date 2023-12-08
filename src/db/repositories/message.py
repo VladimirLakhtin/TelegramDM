@@ -31,11 +31,3 @@ class MessageRepo(Repository[Message]):
             )
         )
         await self.session.commit()
-
-    async def get_titles(self):
-        """Get many messages titles from the database.
-
-                :return: List of founded titles
-                """
-        statement = select(self.type_model.title)
-        return (await self.session.scalars(statement)).all()

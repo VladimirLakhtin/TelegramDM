@@ -4,6 +4,23 @@ from aiogram.fsm.state import State, StatesGroup
 
 class MenuStatesGroup(StatesGroup):
     menu = State()
+
+
+class MailingStatesGroup(StatesGroup):
+
+    # Choose message
+    mes_choose_lst = State()
+    mes_choose_confirm = State()
+
+    # Choose receivers
+    rec_menu = State()
+    rec_from_file = State()
+    rec_confirm_from_file = State()
+    rec_from_group = State()
+    rec_from_geo = State()
+
+    # Main
+    final_info = State()
     mailing = State()
 
 
@@ -15,24 +32,11 @@ class AccountsStatesGroup(StatesGroup):
     delete = State()
 
 
-class ParamsStatesGroup(StatesGroup):
-    menu = State()
-
-
 class MessagesStatesGroup(StatesGroup):
     lst = State()
     input_title = State()
     input_text = State()
-    add_confirm = State()
+    add = State()
     details = State()
     delete = State()
-    delete_confirm = State()
-
-
-class ReceiversStatesGroup(StatesGroup):
-    menu = State()
-    from_file = State()
-    confirm_from_file = State()
-    from_group = State()
-    from_geo = State()
 

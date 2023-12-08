@@ -1,4 +1,5 @@
 import logging
+import math
 import re
 from pathlib import Path
 
@@ -30,6 +31,22 @@ def check_phone_number(phone_number: str) -> bool:
     return len(phone_number) == 12 and finds
 
 
+def calculate_mailing_time(receivers: int, accounts: int) -> str:
+    delay = conf.delay
+    seconds = math.ceil((receivers - accounts) / accounts) * delay
+    result = ''
+
+    h = int(seconds // 3600)
+    m = int((seconds - h * 3600) // 60)
+
+    if h:
+        result += f'{h} ч '
+    if m:
+        result += f'{m} мин '
+
+    return result or f'{seconds:.0f} сек'
+
+
 def create_client(phone_number) -> Client:
     return Client(
         name=phone_number,
@@ -45,3 +62,7 @@ def delete_session(phone_number):
         Path.unlink(conf.app.session_dir / filename)
     except FileNotFoundError:
         logging.error('Cannot delete: file not found')
+
+
+if __name__ == '__main__':
+    print(calculate_mailing_time(3, 2))

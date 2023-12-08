@@ -3,6 +3,11 @@ class CapturesText:
     PARAMS_MENU = """Меню параметров"""
     ACCOUNTS_MENU = """Меню аккаунтов"""
 
+    # Mailing
+    MAILING_NO_ACCOUNTS = """Ни один аккаунт не включен"""
+    MAILING_CHOOSE_MESSAGE = """Выберите сообщение для рассылки:"""
+    FINAL_INFO = """<b>Время расылки составит {time}</b>\n\n<b>В рассылке участвуют аккаунты:</b>\n\n{accounts}"""
+
     # Accounts
     ACCOUNTS_PHONE_INPUT = """Введите номер телефона в формате <b>+7**********</b>:"""
     ACCOUNTS_CODE_INPUT = """Введите проверочный код:"""
@@ -24,6 +29,6 @@ class CapturesText:
     MESSAGE_DELETE_CONFIRM = """Уверены, что хотите удалить сообщение "{title}"?"""
 
     # Receivers
-    RECEIVERS_MENU = """Меню получателей"""
+    RECEIVERS_MENU = """Выберите способ получение адресатов"""
     RECEIVERS_FILE_INPUT = """Отправьте файл с расширением <b>.txt</b>\nФайл должен содержать номера телефонов и/или username-ы"""
     RECEIVERS_FILE_CONFIRM = """<b>Проверьте содержимое файла:</b>\n\n{receivers}\n..."""

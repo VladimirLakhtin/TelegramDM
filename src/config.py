@@ -78,6 +78,7 @@ class Configuration:
 
     debug = bool(getenv('DEBUG'))
     logging_level = int(getenv('LOGGING_LEVEL', logging.ERROR))
+    delay: int = int(getenv('DELAY'))
 
     db = DatabaseConfig()
     # redis = RedisConfig()

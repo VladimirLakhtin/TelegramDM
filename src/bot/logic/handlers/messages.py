@@ -1,3 +1,4 @@
+"""Messages handlers file"""
 from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.input import MessageInput
@@ -29,12 +30,8 @@ async def create_message(callback: CallbackQuery, button: Button,
 
 
 async def message_details(callback: CallbackQuery, button: Button,
-                          manager: DialogManager, button_text: str):
-    db: Database = manager.middleware_data.get('db')
-    message = await db.message.get_by_where(Message_db.title == button_text)
-    if message is None:
-        return
-    manager.dialog_data['message_id'] = message.id
+                          manager: DialogManager, item_id: str):
+    manager.dialog_data['message_id'] = item_id
     await manager.switch_to(MessagesStatesGroup.details)
 
 

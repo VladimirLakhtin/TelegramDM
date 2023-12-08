@@ -1,5 +1,6 @@
 from aiogram_dialog import DialogManager
 
+from src.bot.structures.funcs import calculate_mailing_time
 from src.db import Database
 
 
@@ -10,19 +11,18 @@ async def get_message_data(dialog_manager: DialogManager, **kwargs):
     }
 
 
-async def get_titles_list(dialog_manager: DialogManager, **kwargs):
+async def get_messages_data(dialog_manager: DialogManager, **kwargs):
     db: Database = dialog_manager.middleware_data.get('db')
-    data = await db.message.get_titles()
-    return {'items': data}
+    data = await db.message.get_many()
+    return {'messages': data}
 
 
 async def get_message_data_by_id(dialog_manager: DialogManager, **kwargs):
     message_id = dialog_manager.dialog_data.get('message_id')
     db: Database = dialog_manager.middleware_data.get('db')
-    data = await db.message.get(message_id)
+    message = await db.message.get(message_id)
     return {
-        'title': data.title,
-        'text': data.text,
+        'message': message
     }
 
 
@@ -43,3 +43,22 @@ async def get_account_phone_number(dialog_manager: DialogManager, **kwargs):
     account_id = dialog_manager.dialog_data.get('account_id')
     account = await db.account.get(account_id)
     return {'phone_number': account.phone_number}
+
+
+async def get_final_info(dialog_manager: DialogManager, **kwargs):
+    accounts = dialog_manager.start_data.get('accounts')
+    receivers = dialog_manager.dialog_data.get('receivers')
+
+    if not receivers:
+        return ''
+
+    accounts_text = '\n'.join(
+        account.first_name + ' ' + account.phone_number
+        for account in accounts
+    )
+    sending_time = calculate_mailing_time(len(receivers), len(accounts))
+
+    return {
+        'accounts': accounts_text,
+        'time': sending_time,
+    }

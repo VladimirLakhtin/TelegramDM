@@ -1,94 +1,93 @@
 import asyncio
 import logging
-from typing import Dict
+import os
 
 from aiogram import Bot, Dispatcher
 from aiogram.filters import CommandStart
-from aiogram.filters.state import StatesGroup, State
-from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.types import Message
-from magic_filter import F
+from aiogram.fsm.state import StatesGroup, State
+from aiogram.fsm.storage.memory import MemoryStorage, SimpleEventIsolation
+from aiogram.types import Message, CallbackQuery
 
 from aiogram_dialog import (
-    Dialog, LaunchMode, SubManager, Window, DialogManager, StartMode,
-    setup_dialogs,
+    BaseDialogManager, Dialog, DialogManager, StartMode, Window, setup_dialogs,
 )
-from aiogram_dialog.widgets.kbd import (
-    Row, Checkbox, Radio, ManagedCheckbox,
-    ListGroup,
-)
-from aiogram_dialog.widgets.text import Const, Format
+from aiogram_dialog.widgets.kbd import Button
+from aiogram_dialog.widgets.text import Const, Multi, Progress
 
 API_TOKEN = '6569596945:AAGXprIIFiyiGLgopFYMVsR7NA-2kxrgWD8'
 
 
-class DialogSG(StatesGroup):
-    greeting = State()
+# name input dialog
+
+class Bg(StatesGroup):
+    progress = State()
 
 
-def when_checked(data: Dict, widget, manager: SubManager) -> bool:
-    # manager for our case is already adapted for current ListGroup row
-    # so `.find` returns widget adapted for current row
-    # if you need to find widgets outside the row, use `.find_in_parent`
-    check: ManagedCheckbox = manager.find("check")
-    return check.is_checked()
-
-
-async def data_getter(*args, **kwargs):
-    print('Hi')
+async def get_bg_data(dialog_manager: DialogManager, **kwargs):
     return {
-        "fruits": ["mango", "papaya", "kiwi"],
-        "colors": ["blue", "pink"]
+        "progress": dialog_manager.dialog_data.get("progress", 0)
     }
 
 
-dialog = Dialog(
+bg_dialog = Dialog(
     Window(
-        Const(
-            "Hello, please check you options for each item:"
+        Multi(
+            Const("Your click is processing, please wait..."),
+            Progress("progress", 10),
         ),
-        ListGroup(
-            Checkbox(
-                Format("✓ {item}"),
-                Format("  {item}"),
-                id="check",
-            ),
-            Row(
-                Radio(
-                    Format("🔘 {item} ({data[item]})"),
-                    Format("⚪️ {item} ({data[item]})"),
-                    id="radio",
-                    item_id_getter=str,
-                    items=["black", "white"],
-                    when=when_checked,
-                )
-            ),
-            id="lg",
-            item_id_getter=str,
-            items=F["fruits"],
-        ),
-        state=DialogSG.greeting,
-        getter=get_accounts_data
+        state=Bg.progress,
+        getter=get_bg_data,
     ),
-    launch_mode=LaunchMode.SINGLE_TOP
+)
+
+
+# main dialog
+class MainSG(StatesGroup):
+    main = State()
+
+
+async def start_bg(callback: CallbackQuery, button: Button,
+                   manager: DialogManager):
+    await manager.start(Bg.progress)
+    asyncio.create_task(background(callback, manager.bg()))
+
+
+async def background(callback: CallbackQuery, manager: BaseDialogManager):
+    count = 10
+    for i in range(1, count + 1):
+        await asyncio.sleep(1)
+        await manager.update({
+            "progress": i * 100 / count,
+        })
+    await asyncio.sleep(1)
+    await manager.done()
+
+
+main_menu = Dialog(
+    Window(
+        Const("Press button to start processing"),
+        Button(Const("Start"), id="start", on_click=start_bg),
+        state=MainSG.main,
+    ),
 )
 
 
 async def start(message: Message, dialog_manager: DialogManager):
-    # it is important to reset stack because user wants to restart everything
-    await dialog_manager.start(DialogSG.greeting, mode=StartMode.RESET_STACK)
+    await dialog_manager.start(MainSG.main, mode=StartMode.RESET_STACK)
 
 
 async def main():
     # real main
     logging.basicConfig(level=logging.INFO)
+    logging.getLogger("aiogram_dialog").setLevel(logging.DEBUG)
     storage = MemoryStorage()
     bot = Bot(token=API_TOKEN)
-    dp = Dispatcher(storage=storage)
-    dp.include_router(dialog)
+    dp = Dispatcher(storage=storage, events_isolation=SimpleEventIsolation())
+    dp.include_router(bg_dialog)
+    dp.include_router(main_menu)
+
     dp.message.register(start, CommandStart())
     setup_dialogs(dp)
-
     await dp.start_polling(bot)
 
 

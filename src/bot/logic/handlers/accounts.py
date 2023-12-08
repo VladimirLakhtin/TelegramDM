@@ -1,5 +1,4 @@
-import io
-
+"""Accounts handlers file"""
 from aiogram.types import Message, CallbackQuery
 from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.input import MessageInput
@@ -9,7 +8,7 @@ from pyrogram.errors import PhoneCodeInvalid, FloodWait, PhoneCodeExpired
 
 from src.bot.structures.funcs import check_phone_number, create_client, delete_session
 from src.bot.structures.states import AccountsStatesGroup
-from src.bot.structures.text import CapturesText as cpt_txt, ButtonText as btn_txt
+from src.bot.structures.text import CapturesText as cpt_txt
 from src.db import Database, Account
 
 
@@ -73,6 +72,8 @@ async def account_delete_handler(callback: CallbackQuery, button: Button,
                                  manager: DialogManager):
     account_id = manager.dialog_data.get('account_id')
     db: Database = manager.middleware_data.get('db')
+    account = await db.account.get(account_id)
+    delete_session(account.phone_number)
     await db.account.delete(Account.id == int(account_id))
     await manager.switch_to(AccountsStatesGroup.lst)
 

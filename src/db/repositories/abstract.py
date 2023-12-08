@@ -45,7 +45,7 @@ class Repository(Generic[AbstractModel]):
         return result and result[0]
 
     async def get_many(
-        self, whereclause, limit: int = 100, order_by=None
+        self, whereclause=None, limit: int = 100, order_by=None
     ) -> Sequence[Base]:
         """Get many models from the database with whereclause.
 
@@ -58,7 +58,9 @@ class Repository(Generic[AbstractModel]):
 
         :return: List of founded models
         """
-        statement = select(self.type_model).where(whereclause).limit(limit)
+        statement = select(self.type_model).limit(limit)
+        if whereclause is not None:
+            statement = statement.where(whereclause)
         if order_by:
             statement = statement.order_by(order_by)
 

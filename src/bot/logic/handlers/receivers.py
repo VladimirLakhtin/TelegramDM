@@ -1,3 +1,4 @@
+"""Receivers handlers file"""
 import io
 
 from aiogram.types import Message, CallbackQuery
@@ -6,7 +7,7 @@ from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button
 
 from src.bot.structures.funcs import standardization_receivers_data
-from src.bot.structures.states import ReceiversStatesGroup
+from src.bot.structures.states import MailingStatesGroup
 
 
 async def input_receivers_file(message: Message, widget: MessageInput,
@@ -19,13 +20,13 @@ async def input_receivers_file(message: Message, widget: MessageInput,
         manager.dialog_data['receivers'] = standardization_receivers_data(data)
         await manager.next()
     else:
-        await manager.switch_to(ReceiversStatesGroup.from_file)
+        await manager.switch_to(MailingStatesGroup.rec_from_file)
 
 
 async def confirm_receivers_file(callback: CallbackQuery, button: Button,
                                  manager: DialogManager):
     await callback.answer('Получатели установлены')
-    await manager.switch_to(ReceiversStatesGroup.menu)
+    await manager.switch_to(MailingStatesGroup.final_info)
 
 
 async def cancel_receivers_file(callback: CallbackQuery, button: Button,

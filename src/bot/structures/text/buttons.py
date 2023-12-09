@@ -28,3 +28,4 @@ class ButtonText:
     CONFIRM = 'Да'
     REJECT = 'Нет'
     DELETE = 'Удалить'
+    STOP = "Стоп"

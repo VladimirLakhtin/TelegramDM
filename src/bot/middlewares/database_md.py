@@ -20,6 +20,8 @@ class DatabaseMiddleware(BaseMiddleware):
         data: TransferData,
     ) -> Any:
         """This method calls every update."""
-        async with AsyncSession(bind=data['engine']) as session:
-            data['db'] = Database(session)
-            return await handler(event, data)
+        engine = data.get('engine')
+        if engine:
+            async with AsyncSession(bind=engine) as session:
+                data['db'] = Database(session)
+        return await handler(event, data)

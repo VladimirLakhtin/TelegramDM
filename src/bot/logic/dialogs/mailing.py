@@ -3,12 +3,13 @@ from aiogram.enums import ContentType
 from aiogram_dialog import Window, Dialog
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Cancel, SwitchTo, Back, Row, Button, Select, Column, Next, Start
-from aiogram_dialog.widgets.text import Const, Format
+from aiogram_dialog.widgets.text import Const, Format, Multi, Progress
 from magic_filter import F
 
-from src.bot.logic.handlers.mailing import choose_message
+from src.bot.logic.handlers.mailing import choose_message, start_mailing_handler, stop_mailing_handler
 from src.bot.logic.handlers.receivers import input_receivers_file, confirm_receivers_file, cancel_receivers_file
-from src.bot.structures.getters import get_messages_data, get_message_data_by_id, get_final_info, get_receivers_list
+from src.bot.structures.getters import get_messages_data, get_message_data_by_id, get_final_info, get_receivers_list, \
+    get_progress_value
 from src.bot.structures.states import MailingStatesGroup
 from src.bot.structures.text import ButtonText as btn_txt
 from src.bot.structures.text import CapturesText as cpt_txt
@@ -94,7 +95,7 @@ receivers_confirm_from_file_win = Window(
 mailing_info_win = Window(
     Format(cpt_txt.FINAL_INFO),
     Row(
-        Next(Const(btn_txt.START)),
+        Button(Const(btn_txt.START), id='start_mailing', on_click=start_mailing_handler),
         Back(Const(btn_txt.BACK)),
     ),
     getter=get_final_info,
@@ -102,9 +103,13 @@ mailing_info_win = Window(
 )
 
 progress_win = Window(
-    Const('Прогресс:'),
-    Cancel(Const('Stop')),
+    Multi(
+        Const(cpt_txt.MAILING_RUNNING),
+        Progress('progress', 10, filled='🟪')
+    ),
+    Cancel(Const(btn_txt.STOP), on_click=stop_mailing_handler),
     state=MailingStatesGroup.mailing,
+    getter=get_progress_value,
 )
 
 

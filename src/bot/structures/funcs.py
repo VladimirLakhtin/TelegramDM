@@ -1,13 +1,16 @@
+import asyncio
 import logging
 import math
 import re
 from pathlib import Path
 
-from aiogram_dialog import SubManager
+from aiogram_dialog import SubManager, DialogManager, BaseDialogManager
 from aiogram_dialog.widgets.kbd import ManagedCheckbox
 from pyrogram import Client
+from pyrogram.types import InputPhoneContact, User
 
 from src.config import conf
+from src.db import Database
 
 
 def standardization_receivers_data(string: str) -> list[str]:
@@ -62,6 +65,72 @@ def delete_session(phone_number):
         Path.unlink(conf.app.session_dir / filename)
     except FileNotFoundError:
         logging.error('Cannot delete: file not found')
+
+
+async def receivers_process(receivers: list[str], app: Client) -> list[str]:
+    rec_phone_numbers = [rec for rec in receivers if rec.startswith('+')]
+    rec_usernames = [rec for rec in receivers if rec.startswith('@')]
+
+    await app.import_contacts([
+        InputPhoneContact(phone=rec_phone_number, first_name=rec_phone_number)
+        for rec_phone_number in rec_phone_numbers
+    ])
+    contacts = await app.get_contacts()
+
+    contacts_ids = [
+        contact.id
+        for contact in contacts
+        if f'+{contact.phone_number}' in rec_phone_numbers
+    ]
+    return rec_usernames + contacts_ids
+
+
+async def start_mailing_task(
+        manager: BaseDialogManager,
+        phone_number: str,
+        text: str,
+        receivers: list[str],
+        is_main: bool = False,
+):
+    async with create_client(phone_number) as app:
+        receivers = await receivers_process(receivers, app)
+        for i, receiver in enumerate(receivers):    # type: int, str | int
+            await app.send_message(receiver, text)
+            if is_main:
+                await manager.update(
+                    {'progress': (i + 1) / len(receivers) * 100}
+                )
+            await asyncio.sleep(10)
+
+
+async def start_mailing_main(
+        manager: BaseDialogManager,
+        accounts: list[str],
+        receivers: list[str],
+        message_text: str,
+):
+    await asyncio.sleep(5)
+    tasks = []
+    for i, acc in enumerate(accounts):  # type: int, Account
+        part = math.ceil(len(receivers) / len(accounts))
+        start_acc_receivers = part * i
+        end_acc_receivers = part * (i + 1)
+        acc_receivers = receivers[start_acc_receivers:end_acc_receivers]
+        task = asyncio.create_task(start_mailing_task(
+            manager=manager,
+            phone_number=acc.phone_number,
+            receivers=acc_receivers,
+            text=message_text,
+            is_main=i == 0,
+        ))
+        tasks.append(task)
+
+    await manager.update({'tasks': tasks})
+    for task in tasks:
+        await task
+        task.done()
+
+    await manager.done()
 
 
 if __name__ == '__main__':

@@ -62,3 +62,9 @@ async def get_final_info(dialog_manager: DialogManager, **kwargs):
         'accounts': accounts_text,
         'time': sending_time,
     }
+
+
+async def get_progress_value(dialog_manager: DialogManager, **kwargs):
+    return {
+        'progress': dialog_manager.dialog_data.get('progress', 0)
+    }

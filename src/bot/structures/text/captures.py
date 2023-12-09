@@ -7,6 +7,7 @@ class CapturesText:
     MAILING_NO_ACCOUNTS = """Ни один аккаунт не включен"""
     MAILING_CHOOSE_MESSAGE = """Выберите сообщение для рассылки:"""
     FINAL_INFO = """<b>Время расылки составит {time}</b>\n\n<b>В рассылке участвуют аккаунты:</b>\n\n{accounts}"""
+    MAILING_RUNNING = """Рассылка выполняется..."""
 
     # Accounts
     ACCOUNTS_PHONE_INPUT = """Введите номер телефона в формате <b>+7**********</b>:"""

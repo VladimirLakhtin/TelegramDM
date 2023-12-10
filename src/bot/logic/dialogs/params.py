@@ -5,7 +5,7 @@ from aiogram_dialog.widgets.text import Const
 
 from src.bot.structures.states import MessagesStatesGroup, ReceiversStatesGroup, ParamsStatesGroup
 from src.bot.structures.text import ButtonText as btn_txt
-from src.bot.structures.text import CapturesText as cpt_txt
+from src.bot.structures.text import CaptureText as cpt_txt
 
 
 dialog = Dialog(

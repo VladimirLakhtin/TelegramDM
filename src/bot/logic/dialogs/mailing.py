@@ -7,12 +7,13 @@ from aiogram_dialog.widgets.text import Const, Format, Multi, Progress
 from magic_filter import F
 
 from src.bot.logic.handlers.mailing import choose_message, start_mailing_handler, stop_mailing_handler
-from src.bot.logic.handlers.receivers import input_receivers_file, confirm_receivers_file, cancel_receivers_file
+from src.bot.logic.handlers.receivers import input_receivers_file, confirm_receivers_file, cancel_receivers, \
+    input_receivers_chat, input_receivers_geo
 from src.bot.structures.getters import get_messages_data, get_message_data_by_id, get_final_info, get_receivers_list, \
     get_progress_value
 from src.bot.structures.states import MailingStatesGroup
 from src.bot.structures.text import ButtonText as btn_txt
-from src.bot.structures.text import CapturesText as cpt_txt
+from src.bot.structures.text import CaptureText as cpt_txt
 
 
 choose_message_win = Window(
@@ -50,9 +51,9 @@ receivers_menu_win = Window(
             state=MailingStatesGroup.rec_from_file,
         ),
         SwitchTo(
-            Const(btn_txt.RECEIVERS_GROUP),
-            id='group',
-            state=MailingStatesGroup.rec_from_group,
+            Const(btn_txt.RECEIVERS_CHAT),
+            id='chat',
+            state=MailingStatesGroup.rec_from_chat,
         ),
     ),
     SwitchTo(
@@ -85,19 +86,55 @@ receivers_confirm_from_file_win = Window(
         Button(
             Const(btn_txt.BACK),
             id='rec_file_cancel',
-            on_click=cancel_receivers_file,
+            on_click=cancel_receivers,
         ),
     ),
     state=MailingStatesGroup.rec_confirm_from_file,
     getter=get_receivers_list,
 )
 
+
+receivers_from_chat_win = Window(
+    Const(cpt_txt.RECEIVERS_CHAT_INPUT),
+    MessageInput(
+        content_types=[ContentType.TEXT],
+        func=input_receivers_chat,
+    ),
+    SwitchTo(
+        Const(btn_txt.BACK),
+        id='back_rec_menu_chat',
+        state=MailingStatesGroup.rec_menu,
+    ),
+    state=MailingStatesGroup.rec_from_chat,
+)
+
+
+receivers_from_geo_win = Window(
+    Const(cpt_txt.RECEIVERS_GEO_INPUT),
+    MessageInput(
+        content_types=[ContentType.LOCATION],
+        func=input_receivers_geo,
+    ),
+    SwitchTo(
+        Const(btn_txt.BACK),
+        id='back_rec_menu_geo',
+        state=MailingStatesGroup.rec_menu,
+    ),
+    state=MailingStatesGroup.rec_from_geo,
+)
+
+
 mailing_info_win = Window(
     Format(cpt_txt.FINAL_INFO),
     Row(
-        Button(Const(btn_txt.START), id='start_mailing', on_click=start_mailing_handler),
+        Button(
+            Const(btn_txt.START),
+            id='start_mailing',
+            on_click=start_mailing_handler,
+        ),
         Back(Const(btn_txt.BACK)),
     ),
+    Cancel(Const(btn_txt.BACK_MENU)),
     getter=get_final_info,
     state=MailingStatesGroup.final_info,
 )
@@ -119,6 +156,8 @@ dialog = Dialog(
     receivers_menu_win,
     receivers_from_file_win,
     receivers_confirm_from_file_win,
+    receivers_from_chat_win,
+    receivers_from_geo_win,
     mailing_info_win,
     progress_win,
 )

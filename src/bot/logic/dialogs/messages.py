@@ -14,7 +14,7 @@ from src.bot.logic.handlers.messages import (
 from src.bot.structures.getters import get_message_data, get_messages_data, get_message_data_by_id
 from src.bot.structures.states import MessagesStatesGroup
 from src.bot.structures.text import ButtonText as btn_txt
-from src.bot.structures.text import CapturesText as cpt_txt
+from src.bot.structures.text import CaptureText as cpt_txt
 
 
 lst_win = Window(

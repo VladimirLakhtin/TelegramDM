@@ -19,7 +19,7 @@ class ButtonText:
 
     # Receivers
     RECEIVERS_FILE = 'Из файла'
-    RECEIVERS_GROUP = 'Из группы'
+    RECEIVERS_CHAT = 'Из группы'
     RECEIVERS_GEO = 'По геолокации'
 
     # Other
@@ -29,3 +29,4 @@ class ButtonText:
     REJECT = 'Нет'
     DELETE = 'Удалить'
     STOP = "Стоп"
+    BACK_MENU = 'Назад в меню'

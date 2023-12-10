@@ -1,4 +1,4 @@
-class CapturesText:
+class CaptureText:
     MAIN_MENU = """Главное меню"""
     PARAMS_MENU = """Меню параметров"""
     ACCOUNTS_MENU = """Меню аккаунтов"""
@@ -6,7 +6,9 @@ class CapturesText:
     # Mailing
     MAILING_NO_ACCOUNTS = """Ни один аккаунт не включен"""
     MAILING_CHOOSE_MESSAGE = """Выберите сообщение для рассылки:"""
-    FINAL_INFO = """<b>Время расылки составит {time}</b>\n\n<b>В рассылке участвуют аккаунты:</b>\n\n{accounts}"""
+    FINAL_INFO = """<b>Время расылки составит {time}\n\nКоличество получателей: {receivers_count}\n
+В рассылке участвуют аккаунты:</b>\n\n{accounts}"""
+    FINAL_INFO_UPDATE = """Данные обновлены:"""
     MAILING_RUNNING = """Рассылка выполняется..."""
 
     # Accounts
@@ -19,6 +21,7 @@ class CapturesText:
     ACCOUNTS_CODE_EXPIRED_INPUT = """Введенный код устарел, либо вы пытаетесь добавить аккаунт, который используете в данный момент\n
 Попробуйте снова"""
     ACCOUNTS_CONFIRM_DELETE = """Вы точно хотите удалить аккаунт в номером {phone_number}?"""
+    ACCOUNTS_DELETED_ON_AUTH = """Аккаунт <b>{first_name} {phone_number}</b> был вынужденно удален из-за потери доступа"""
 
     # Messages
     MESSAGES_MENU = """Меню сообщений"""
@@ -33,3 +36,7 @@ class CapturesText:
     RECEIVERS_MENU = """Выберите способ получение адресатов"""
     RECEIVERS_FILE_INPUT = """Отправьте файл с расширением <b>.txt</b>\nФайл должен содержать номера телефонов и/или username-ы"""
     RECEIVERS_FILE_CONFIRM = """<b>Проверьте содержимое файла:</b>\n\n{receivers}\n..."""
+    RECEIVERS_CHAT_INPUT = """Отправьте <b>username</b> группы\nСписок пользователей группы должен быть доступен каждому"""
+    RECEIVERS_CHAT_NO_MEMBERS = """Из данной группы не удалось получить ни одного пользователя\nПопробуйте другую группу"""
+    RECEIVERS_CHAT_ERROR = """Группа с таким именем не найдена\nПопробуйте ввести другое имя группы"""
+    RECEIVERS_GEO_INPUT = """Отправьте геолокацию, откуда хотите собрать получателей"""

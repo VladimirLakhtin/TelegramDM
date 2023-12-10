@@ -7,7 +7,7 @@ from src.bot.logic.handlers.mailing import init_mailing_handler
 from src.bot.structures.states import MenuStatesGroup, AccountsStatesGroup, \
     MessagesStatesGroup
 from src.bot.structures.text import ButtonText as btn_txt
-from src.bot.structures.text import CapturesText as cpt_txt
+from src.bot.structures.text import CaptureText as cpt_txt
 
 
 dialog = Dialog(

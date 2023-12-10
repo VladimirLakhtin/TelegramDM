@@ -27,8 +27,9 @@ async def get_message_data_by_id(dialog_manager: DialogManager, **kwargs):
 
 
 async def get_receivers_list(dialog_manager: DialogManager, **kwargs):
+    receivers = dialog_manager.dialog_data.get('receivers')
     return {
-        'receivers': '\n'.join(dialog_manager.dialog_data.get('receivers')[:10])
+        'receivers': receivers and '\n'.join(receivers[:10])
     }
 
 
@@ -60,6 +61,7 @@ async def get_final_info(dialog_manager: DialogManager, **kwargs):
 
     return {
         'accounts': accounts_text,
+        'receivers_count': len(receivers),
         'time': sending_time,
     }
 

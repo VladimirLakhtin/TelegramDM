@@ -6,9 +6,10 @@ from aiogram_dialog.widgets.kbd import Button
 from pyrogram import Client
 from pyrogram.errors import PhoneCodeInvalid, FloodWait, PhoneCodeExpired
 
-from src.bot.structures.funcs import check_phone_number, create_client, delete_session
+from src.bot.structures.funcs import check_phone_number
+from src.bot.structures.pyrogram_funcs import create_client, delete_session
 from src.bot.structures.states import AccountsStatesGroup
-from src.bot.structures.text import CapturesText as cpt_txt
+from src.bot.structures.text import CaptureText as cpt_txt
 from src.db import Database, Account
 
 

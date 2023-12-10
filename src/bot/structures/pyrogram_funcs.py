@@ -1,42 +1,138 @@
 import asyncio
+import logging
+import math
+from pathlib import Path
 
+import pyrogram.errors
+from aiogram_dialog import BaseDialogManager
 from pyrogram import Client
-from pyrogram.types import User
+from pyrogram.errors import AuthRestart
+from pyrogram.types import User, InputPhoneContact, Chat, ChatMember
 from pyrogram.raw.functions.contacts import GetLocated
 from pyrogram.raw.types import InputGeoPoint
 
-from config import API_ID, API_HASH, SESSION_NAME
+from src.config import conf
+from src.db import Account
 
 
-async def send_message(session_name) -> None:
-    async with Client(session_name, API_ID, API_HASH) as app:
-        await app.send_message("yummy.lvl", "Hey")
+def create_client(phone_number) -> Client:
+    return Client(
+        name=phone_number,
+        api_id=conf.app.id,
+        api_hash=conf.app.hash,
+        workdir=conf.app.session_dir,
+    )
 
 
-async def get_user_info(session_name, username) -> User:
-    async with Client(session_name, API_ID, API_HASH) as app:
-        return await app.get_users(username)
+def delete_session(phone_number):
+    filename = phone_number + '.session'
+    try:
+        Path.unlink(conf.app.session_dir / filename)
+    except FileNotFoundError:
+        logging.error('Cannot delete: file not found')
 
 
-async def get_nearby_chats(session_name, latitude, longitude):
-    async with Client(session_name, API_ID, API_HASH) as app:
-        return await app.get_nearby_chats(latitude, longitude)
+async def receivers_process(receivers: list[str], app: Client) -> list[str]:
+    rec_phone_numbers = [rec for rec in receivers if rec.startswith('+')]
+    rec_usernames = [rec for rec in receivers if rec.startswith('@')]
+
+    await app.import_contacts([
+        InputPhoneContact(phone=rec_phone_number, first_name=rec_phone_number)
+        for rec_phone_number in rec_phone_numbers
+    ])
+    contacts = await app.get_contacts()
+
+    contacts_ids = [
+        contact.id
+        for contact in contacts
+        if f'+{contact.phone_number}' in rec_phone_numbers
+    ]
+    return rec_usernames + contacts_ids
 
 
-async def get_chat_members(session_name, chat_id):
-    async with Client(session_name, API_ID, API_HASH) as app:
-        return [member async for member in app.get_chat_members(chat_id, limit=10)]
+async def start_mailing_task(
+        manager: BaseDialogManager,
+        phone_number: str,
+        text: str,
+        receivers: list[str],
+        is_main: bool = False,
+):
+    client = create_client(phone_number)
+    is_authorized = await client.connect()
+    await client.disconnect()
+
+    if not is_authorized:
+        raise pyrogram.errors.AuthRestart
+
+    async with client as app:
+        receivers = await receivers_process(receivers, app)
+        for i, receiver in enumerate(receivers):    # type: int, str | int
+            # await app.send_message(receiver, text)
+            print(f'Message sended to {receiver} user')
+            if is_main:
+                await manager.update(
+                    {'progress': (i + 1) / len(receivers) * 100}
+                )
+            await asyncio.sleep(10)
 
 
-async def get_users_nearly(session_name):
-    async with Client(session_name, API_ID, API_HASH) as app:
-        geo = InputGeoPoint(lat=45.051192, long=39.029169, accuracy_radius=1)
-        located = GetLocated(geo_point=geo, self_expires=42)
-        return await app.invoke(located)
+async def start_mailing_main(
+        manager: BaseDialogManager,
+        accounts: list[str],
+        receivers: list[str],
+        message_text: str,
+):
+    await asyncio.sleep(5)
+    tasks = []
+    for i, acc in enumerate(accounts):  # type: int, Account
+        part = math.ceil(len(receivers) / len(accounts))
+        acc_receivers = receivers[part * i:part * (i + 1)]
+        task = asyncio.create_task(start_mailing_task(
+            manager=manager,
+            phone_number=acc.phone_number,
+            receivers=acc_receivers,
+            text=message_text,
+            is_main=i == 0,
+        ))
+        tasks.append(task)
+
+    await manager.update({'tasks': tasks})
+    for task in tasks:
+        try:
+            await task
+        except AuthRestart:
+            pass
+        finally:
+            task.done()
+
+    await manager.done()
+
+
+# async def get_user_info(session_name, username) -> User:
+#     async with Client(session_name, API_ID, API_HASH) as app:
+#         return await app.get_users(username)
+#
+#
+# async def get_nearby_chats(session_name, latitude, longitude):
+#     async with Client(session_name, API_ID, API_HASH) as app:
+#         return await app.get_nearby_chats(latitude, longitude)
+#
+#
+# async def get_users_nearly(session_name):
+#     async with Client(session_name, API_ID, API_HASH) as app:
+#         geo = InputGeoPoint(lat=45.051192, long=39.029169, accuracy_radius=1)
+#         located = GetLocated(geo_point=geo, self_expires=42)
+#         return await app.invoke(located)
+
+
+async def get_chat_members(phone_number: str, chat_id: int | str) -> list[ChatMember]:
+    async with create_client(phone_number) as app:
+        return [member async for member in app.get_chat_members(chat_id)]
 
 
 if __name__ == '__main__':
     LATITUDE = 45.051173
     LONGITUDE = 39.029378
-    print(API_ID, API_HASH)
-    asyncio.run(get_nearby_chats(SESSION_NAME, latitude=LATITUDE, longitude=LONGITUDE))
+    chat_members: list[ChatMember] = asyncio.run(get_chat_members('+79528151052', 'mitino_park'))
+    s = sum(1 for member in chat_members if member.user.username is not None)
+    print(s / len(chat_members))

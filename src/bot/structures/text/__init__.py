@@ -1,2 +1,2 @@
 from .buttons import ButtonText
-from .captures import CapturesText
+from .captures import CaptureText

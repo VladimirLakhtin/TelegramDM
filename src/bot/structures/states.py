@@ -16,7 +16,7 @@ class MailingStatesGroup(StatesGroup):
     rec_menu = State()
     rec_from_file = State()
     rec_confirm_from_file = State()
-    rec_from_group = State()
+    rec_from_chat = State()
     rec_from_geo = State()
 
     # Main

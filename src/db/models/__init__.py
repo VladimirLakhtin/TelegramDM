@@ -3,4 +3,4 @@ from .base import Base
 from .account import Account
 from .message import Message
 
-__all__ = ('Base',)
+__all__ = ('Base', 'Account', 'Message')

@@ -13,7 +13,7 @@ from src.bot.structures.bool_format import BoolFormat
 from src.bot.structures.funcs import open_account_option
 from src.bot.structures.getters import get_accounts_data, get_account_phone_number
 from src.bot.structures.states import AccountsStatesGroup
-from src.bot.structures.text import ButtonText as btn_txt, CapturesText as cpt_txt
+from src.bot.structures.text import ButtonText as btn_txt, CaptureText as cpt_txt
 
 
 lst_win = Window(

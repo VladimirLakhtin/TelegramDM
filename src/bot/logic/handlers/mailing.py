@@ -38,7 +38,7 @@ async def restart_final_info(callback: CallbackQuery, manager: DialogManager,
     chat_id = callback.from_user.id
     for acc in no_auth_accounts:
         manager.start_data['accounts'].remove(acc)
-        await db.account.delete(Account.id == acc.id)
+        await db.account.delete(acc.id)
         text = cpt_txt.ACCOUNTS_DELETED_ON_AUTH.format(first_name=acc.first_name, phone_number=acc.phone_number)
         await callback.bot.send_message(chat_id, text)
 

@@ -1,9 +1,11 @@
 """Account repository file."""
+import os
+from pathlib import Path
 
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..models import Base, Account
+from ..models import Account
 from .abstract import Repository
 
 
@@ -56,3 +58,9 @@ class AccountRepo(Repository[Account]):
         await self.session.execute(statement)
         await self.session.commit()
 
+    async def delete(self, id: int | str) -> None:
+        account = await self.get(id)
+        await super().delete(Account.id == id)
+        filename = f'{account.phone_number}.session'
+        session_path = Path('sessions') / filename
+        os.remove(session_path)

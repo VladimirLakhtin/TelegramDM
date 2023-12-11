@@ -15,12 +15,19 @@ from src.db import Database, Account
 
 async def input_phone_number_handler(message: Message, widget: MessageInput,
                                      manager: DialogManager):
-    if not check_phone_number(message.text):
+    db: Database = manager.middleware_data.get('db')
+    phone_number = message.text
+    if not check_phone_number(phone_number):
         await message.answer(cpt_txt.ACCOUNTS_PHONE_INCORRECT_INPUT)
         await manager.switch_to(AccountsStatesGroup.input_phone_number)
         return
 
-    phone_number = message.text
+    accounts = await db.account.get_many(Account.phone_number == phone_number)
+    if accounts:
+        await message.answer(cpt_txt.ACCOUNTS_EXISTS)
+        await manager.back()
+        return
+
     client = create_client(message.text)
     await client.connect()
     try:
@@ -75,7 +82,7 @@ async def account_delete_handler(callback: CallbackQuery, button: Button,
     db: Database = manager.middleware_data.get('db')
     account = await db.account.get(account_id)
     delete_session(account.phone_number)
-    await db.account.delete(Account.id == int(account_id))
+    await db.account.delete(account_id)
     await manager.switch_to(AccountsStatesGroup.lst)
 
 

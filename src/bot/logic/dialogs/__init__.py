@@ -5,7 +5,6 @@ from .main import dialog as main_dialog
 from .mailing import dialog as mailing_dialog
 from .accounts import dialog as accounts_dialog
 from .messages import dialog as messages_dialog
-# from .receivers import dialog as receivers_dialog
 
 router = Router()
 router.include_routers(
@@ -13,5 +12,4 @@ router.include_routers(
     mailing_dialog,
     accounts_dialog,
     messages_dialog,
-    # receivers_dialog,
 )

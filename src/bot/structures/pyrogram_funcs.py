@@ -67,13 +67,12 @@ async def start_mailing_task(
     async with client as app:
         receivers = await receivers_process(receivers, app)
         for i, receiver in enumerate(receivers):    # type: int, str | int
-            # await app.send_message(receiver, text)
-            print(f'Message sended to {receiver} user')
+            await app.send_message(receiver, text)
             if is_main:
                 await manager.update(
                     {'progress': (i + 1) / len(receivers) * 100}
                 )
-            await asyncio.sleep(10)
+            await asyncio.sleep(conf.delay)
 
 
 async def start_mailing_main(
@@ -108,31 +107,25 @@ async def start_mailing_main(
     await manager.done()
 
 
-# async def get_user_info(session_name, username) -> User:
-#     async with Client(session_name, API_ID, API_HASH) as app:
-#         return await app.get_users(username)
-#
-#
-# async def get_nearby_chats(session_name, latitude, longitude):
-#     async with Client(session_name, API_ID, API_HASH) as app:
-#         return await app.get_nearby_chats(latitude, longitude)
-#
-#
-# async def get_users_nearly(session_name):
-#     async with Client(session_name, API_ID, API_HASH) as app:
-#         geo = InputGeoPoint(lat=45.051192, long=39.029169, accuracy_radius=1)
-#         located = GetLocated(geo_point=geo, self_expires=42)
-#         return await app.invoke(located)
-
-
 async def get_chat_members(phone_number: str, chat_id: int | str) -> list[ChatMember]:
     async with create_client(phone_number) as app:
         return [member async for member in app.get_chat_members(chat_id)]
 
 
+# async def get_nearby_chats(session_name, latitude, longitude):
+#     async with Client(session_name, API_ID, API_HASH) as app:
+#         return await app.get_nearby_chats(latitude, longitude)
+#
+async def get_users_nearly(phone_number: str, latitude: float, longitude: float) -> list[User]:
+    async with create_client(phone_number) as app:
+        geo = InputGeoPoint(lat=latitude, long=longitude, accuracy_radius=1)
+        located = GetLocated(geo_point=geo, self_expires=42)
+        result = await app.invoke(located)
+        return result.users
+
+
 if __name__ == '__main__':
-    LATITUDE = 45.051173
-    LONGITUDE = 39.029378
-    chat_members: list[ChatMember] = asyncio.run(get_chat_members('+79528151052', 'mitino_park'))
-    s = sum(1 for member in chat_members if member.user.username is not None)
-    print(s / len(chat_members))
+    LATITUDE = 45.02818292685331
+    LONGITUDE = 38.971911885422664
+    accs = asyncio.run(get_users_nearly('+79528151052', LATITUDE, LONGITUDE))
+    print(accs)

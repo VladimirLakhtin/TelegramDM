@@ -1,10 +1,14 @@
 import math
 import re
 
-from aiogram_dialog import SubManager, DialogManager
+import pyrogram.errors
+from aiogram_dialog import SubManager
 from aiogram_dialog.widgets.kbd import ManagedCheckbox
+from pyrogram.errors import AuthKeyUnregistered
+from pyrogram.raw.functions.updates import GetState
+from pyrogram.types import User, ChatMember
 
-from src.bot.structures.pyrogram_funcs import get_chat_members, create_client
+from src.bot.structures.pyrogram_funcs import create_client
 from src.config import conf
 from src.db import Account
 
@@ -46,26 +50,39 @@ def calculate_mailing_time(receivers: int, accounts: int) -> str:
     return result or f'{seconds:.0f} сек'
 
 
-async def get_receivers_from_chat(phone_numbers: str, chatname: str) -> list[str]:
-    members = await get_chat_members(phone_numbers, chatname)
+def get_receivers_from_members(users: list[ChatMember]):
     return [
         '@' + u if u else '+' + p
-        for chat in members
+        for chat in users
         if not chat.user.is_bot and
            ((u := chat.user.username) or (p := chat.user.phone_number))
     ]
 
 
+def get_receivers_from_users(users: list[User]):
+    return [
+        '@' + u if u else '+' + p
+        for chat in users
+        if not chat.bot and
+           ((u := chat.username) or (p := chat.phone))
+    ]
+
+
 async def clear_accounts_on_auth(accounts: list[Account]) -> list[Account]:
     result = []
-    for acc in accounts:    #type: Account
+    for acc in accounts:    # type: Account
         client = create_client(acc.phone_number)
         is_auth = await client.connect()
-        await client.disconnect()
         if not is_auth:
             result.append(acc)
+            await client.disconnect()
+            continue
+        try:
+            await client.invoke(GetState())
+        except AuthKeyUnregistered:
+            result.append(acc)
+        await client.disconnect()
     return result
-
 
 
 if __name__ == '__main__':

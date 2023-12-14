@@ -1,7 +1,10 @@
+""" Captures text file """
+
+
 class CaptureText:
+
+    # Menu
     MAIN_MENU = """Главное меню"""
-    PARAMS_MENU = """Меню параметров"""
-    ACCOUNTS_MENU = """Меню аккаунтов"""
 
     # Mailing
     MAILING_NO_ACCOUNTS = """Ни один аккаунт не включен"""
@@ -12,6 +15,7 @@ class CaptureText:
     MAILING_RUNNING = """Рассылка выполняется..."""
 
     # Accounts
+    ACCOUNTS_MENU = """Меню аккаунтов"""
     ACCOUNTS_PHONE_INPUT = """Введите номер телефона в формате <b>+7**********</b>:"""
     ACCOUNTS_EXISTS = """Аккаунт с данным номером уже подключен"""
     ACCOUNTS_CODE_INPUT = """Введите проверочный код:"""
@@ -27,11 +31,12 @@ class CaptureText:
     # Messages
     MESSAGES_MENU = """Меню сообщений"""
     MESSAGES_LIST = """Список сообщений"""
-    MESSAGE_TITLE_INPUT = """Введите заголовок сообщения:"""
-    MESSAGE_TEXT_INPUT = """Введите новое сообщение:"""
+    MESSAGE_TITLE_INPUT = """Введите заголовок нового сообщения:"""
+    MESSAGE_TEXT_INPUT = """Введите текст нового сообщения:"""
+    MESSAGE_MEDIA_INPUT = """Отправьте изображение/видео нового сообщение, либо пропустите этот шаг:"""
     MESSAGE_INCORRECT_INPUT = """Сообщение должно быть исключительно текстовым"""
     MESSAGE_ADD_CONFIRM = """Уверены, что хотите добавить такое сообщение?\n\n<b>{title}</b>\n\n{message}"""
-    MESSAGE_DELETE_CONFIRM = """Уверены, что хотите удалить сообщение "{title}"?"""
+    MESSAGE_DELETE_CONFIRM = """Уверены, что хотите удалить сообщение "{message.title}"?"""
 
     # Receivers
     RECEIVERS_MENU = """Выберите способ получение адресатов"""

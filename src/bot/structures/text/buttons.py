@@ -1,4 +1,8 @@
+""" Buttons text file """
+
+
 class ButtonText:
+
     # Main menu
     ACCOUNTS = 'Аккаунты'
     START = 'Начать рассылку'
@@ -30,3 +34,4 @@ class ButtonText:
     DELETE = 'Удалить'
     STOP = "Стоп"
     BACK_MENU = 'Назад в меню'
+    SKIP = 'Пропустить'

@@ -1,9 +1,12 @@
+""" Pyrogram function file """
 import asyncio
 import logging
 import math
 from pathlib import Path
 
 import pyrogram.errors
+from aiogram.enums import ContentType
+from aiogram.types import Message
 from aiogram_dialog import BaseDialogManager
 from pyrogram import Client
 from pyrogram.errors import AuthRestart
@@ -16,6 +19,7 @@ from src.db import Account
 
 
 def create_client(phone_number) -> Client:
+    """ Create pyrogram client """
     return Client(
         name=phone_number,
         api_id=conf.app.id,
@@ -25,6 +29,7 @@ def create_client(phone_number) -> Client:
 
 
 def delete_session(phone_number):
+    """ Delete pyrogram session file """
     filename = phone_number + '.session'
     try:
         Path.unlink(conf.app.session_dir / filename)
@@ -33,6 +38,7 @@ def delete_session(phone_number):
 
 
 async def receivers_process(receivers: list[str], app: Client) -> list[str]:
+    """ Get receivers usernames or phone numbers from Client instances """
     rec_phone_numbers = [rec for rec in receivers if rec.startswith('+')]
     rec_usernames = [rec for rec in receivers if rec.startswith('@')]
 
@@ -53,10 +59,11 @@ async def receivers_process(receivers: list[str], app: Client) -> list[str]:
 async def start_mailing_task(
         manager: BaseDialogManager,
         phone_number: str,
-        text: str,
         receivers: list[str],
+        message: Message,
         is_main: bool = False,
 ):
+    """ Run mailing loop for one account """
     client = create_client(phone_number)
     is_authorized = await client.connect()
     await client.disconnect()
@@ -64,10 +71,17 @@ async def start_mailing_task(
     if not is_authorized:
         raise pyrogram.errors.AuthRestart
 
-    async with client as app:
+    async with client as app:   # type: Client
         receivers = await receivers_process(receivers, app)
         for i, receiver in enumerate(receivers):    # type: int, str | int
-            await app.send_message(receiver, text)
+
+            if message.content_type == ContentType.TEXT:
+                await app.send_message(receiver, message.text)
+            elif message.content_type == ContentType.PHOTO:
+                await app.send_photo(receiver, message.media_path, message.text)
+            elif message.content_type == ContentType.VIDEO:
+                await app.send_video(receiver, message.media_path, message.text)
+
             if is_main:
                 await manager.update(
                     {'progress': (i + 1) / len(receivers) * 100}
@@ -79,8 +93,9 @@ async def start_mailing_main(
         manager: BaseDialogManager,
         accounts: list[str],
         receivers: list[str],
-        message_text: str,
+        message: Message,
 ):
+    """ Run and await mailing tasks """
     await asyncio.sleep(5)
     tasks = []
     for i, acc in enumerate(accounts):  # type: int, Account
@@ -90,7 +105,7 @@ async def start_mailing_main(
             manager=manager,
             phone_number=acc.phone_number,
             receivers=acc_receivers,
-            text=message_text,
+            message=message,
             is_main=i == 0,
         ))
         tasks.append(task)
@@ -108,6 +123,7 @@ async def start_mailing_main(
 
 
 async def get_chat_members(phone_number: str, chat_id: int | str) -> list[ChatMember]:
+    """ Get members from chat """
     async with create_client(phone_number) as app:
         return [member async for member in app.get_chat_members(chat_id)]
 
@@ -115,8 +131,10 @@ async def get_chat_members(phone_number: str, chat_id: int | str) -> list[ChatMe
 # async def get_nearby_chats(session_name, latitude, longitude):
 #     async with Client(session_name, API_ID, API_HASH) as app:
 #         return await app.get_nearby_chats(latitude, longitude)
-#
+
+
 async def get_users_nearly(phone_number: str, latitude: float, longitude: float) -> list[User]:
+    """ Get members from location """
     async with create_client(phone_number) as app:
         geo = InputGeoPoint(lat=latitude, long=longitude, accuracy_radius=1)
         located = GetLocated(geo_point=geo, self_expires=42)

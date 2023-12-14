@@ -12,6 +12,10 @@ class Message(Base):
     """ Message title"""
     text: Mapped[str]
     """ Message title"""
+    media_path: Mapped[str | None]
+    """ Message media path"""
+    content_type: Mapped[str | None]
+    """ Message media content type"""
 
     def __str__(self):
         return f'{self.__class__.__name__}(title={self.title})'

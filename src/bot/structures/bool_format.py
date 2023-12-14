@@ -1,3 +1,4 @@
+""" File contains a Format subclass for the purpose of """
 from typing import Dict
 
 from aiogram_dialog import DialogManager

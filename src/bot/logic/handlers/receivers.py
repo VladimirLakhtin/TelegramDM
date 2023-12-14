@@ -5,7 +5,7 @@ from aiogram.types import Message, CallbackQuery, Location
 from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button
-from pyrogram.errors import UsernameInvalid
+from pyrogram.errors import UsernameInvalid, UsernameNotOccupied
 
 from src.bot.structures.funcs import standardization_receivers_data, get_receivers_from_users, \
     get_receivers_from_members, clear_accounts_on_auth
@@ -52,7 +52,7 @@ async def input_receivers_chat(message: Message, widget: MessageInput,
 
     try:
         members = await get_chat_members(accounts[0].phone_number, chatname)
-    except UsernameInvalid:
+    except (UsernameInvalid, UsernameNotOccupied):
         await message.answer(cpt_txt.RECEIVERS_CHAT_ERROR)
         return
 

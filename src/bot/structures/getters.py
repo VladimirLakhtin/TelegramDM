@@ -1,13 +1,24 @@
+""" Dialogs getters file """
 from aiogram_dialog import DialogManager
+from aiogram_dialog.api.entities import MediaAttachment, MediaId
 
-from src.bot.structures.funcs import calculate_mailing_time
+from src.bot.structures.funcs import get_mailing_time
 from src.db import Database
 
 
 async def get_message_data(dialog_manager: DialogManager, **kwargs):
+    file_id, file_unique_id, content_type = (
+        dialog_manager.dialog_data.get('media', (None, None, None)))
+    media = None
+    if file_id:
+        media = MediaAttachment(
+            file_id=MediaId(file_id, file_unique_id),
+            type=content_type,
+        )
     return {
         "title": dialog_manager.dialog_data.get("title"),
-        "message": dialog_manager.dialog_data.get("message")
+        "message": dialog_manager.dialog_data.get("message"),
+        'media': media,
     }
 
 
@@ -21,8 +32,15 @@ async def get_message_data_by_id(dialog_manager: DialogManager, **kwargs):
     message_id = dialog_manager.dialog_data.get('message_id')
     db: Database = dialog_manager.middleware_data.get('db')
     message = await db.message.get(message_id)
+    media = None
+    if message.media_path:
+        media = MediaAttachment(
+            path=message.media_path,
+            type=message.content_type,
+        )
     return {
-        'message': message
+        'message': message,
+        'media': media,
     }
 
 
@@ -57,7 +75,7 @@ async def get_final_info(dialog_manager: DialogManager, **kwargs):
         account.first_name + ' ' + account.phone_number
         for account in accounts
     )
-    sending_time = calculate_mailing_time(len(receivers), len(accounts))
+    sending_time = get_mailing_time(len(receivers), len(accounts))
 
     return {
         'accounts': accounts_text,

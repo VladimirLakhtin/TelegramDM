@@ -71,7 +71,7 @@ async def input_phone_code_handler(message: Message, widget: MessageInput,
 
 
 async def account_confirm_delete_handler(callback: CallbackQuery, button: Button,
-                                 manager: DialogManager):
+                                         manager: DialogManager):
     manager.dialog_data['account_id'] = manager.item_id
     await manager.switch_to(AccountsStatesGroup.delete)
 

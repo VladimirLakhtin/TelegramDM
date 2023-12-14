@@ -1,4 +1,5 @@
 """User repository file."""
+import os
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -17,17 +18,31 @@ class MessageRepo(Repository[Message]):
     async def new(
         self,
         title: str,
-        text: str
+        text: str,
+        media_path: str = None,
+        content_type: str = None,
     ) -> None:
         """Insert a new messages into the database.
 
-        :param title: Mailing messages title
-        :param text: Mailing messages text
+        :param title: Mailing message title
+        :param text: Mailing message text
+        :param media_path: Mailing message media path
+        :param content_type: Mailing message media content type
         """
         await self.session.merge(
             Message(
                 title=title,
                 text=text,
+                media_path=media_path,
+                content_type=content_type,
             )
         )
         await self.session.commit()
+
+    async def delete(self, id: int) -> None:
+        message = await self.get(id)
+        if message.media_path:
+            os.remove(message.media_path)
+        await super().delete(Message.id == id)
+
+

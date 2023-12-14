@@ -69,7 +69,7 @@ class TelegramAppConfig:
 
     id: int = getenv('API_ID')
     hash: str = getenv('API_HASH')
-    session_dir = Path(__file__).parent / 'bot/sessions'
+    session_dir = Path(__file__).parent / 'bot/structures/sessions'
 
 
 @dataclass
@@ -79,6 +79,7 @@ class Configuration:
     debug = bool(getenv('DEBUG'))
     logging_level = int(getenv('LOGGING_LEVEL', logging.ERROR))
     delay: int = int(getenv('DELAY'))
+    media_dir = Path(__file__).parent / 'bot/structures/media'
 
     db = DatabaseConfig()
     # redis = RedisConfig()

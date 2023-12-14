@@ -1,7 +1,9 @@
+""" Other functions file """
 import math
+import random
 import re
+import string
 
-import pyrogram.errors
 from aiogram_dialog import SubManager
 from aiogram_dialog.widgets.kbd import ManagedCheckbox
 from pyrogram.errors import AuthKeyUnregistered
@@ -24,17 +26,25 @@ def standardization_receivers_data(string: str) -> list[str]:
     return result
 
 
+def get_slug() -> str:
+    """ Get random string """
+    characters = string.ascii_letters + string.digits
+    return ''.join(random.choice(characters) for _ in range(15))
+
+
 def open_account_option(data: dict, widget, manager: SubManager) -> bool:
     check: ManagedCheckbox = manager.find("acc_check")
     return check.is_checked()
 
 
 def check_phone_number(phone_number: str) -> bool:
+    """ Phone number validate """
     finds = ''.join(re.findall(r'\+7\d{10}', phone_number))
     return len(phone_number) == 12 and finds
 
 
-def calculate_mailing_time(receivers: int, accounts: int) -> str:
+def get_mailing_time(receivers: int, accounts: int) -> str:
+    """ Calculate mailing time """
     delay = conf.delay
     seconds = math.ceil((receivers - accounts) / accounts) * delay
     result = ''
@@ -51,6 +61,7 @@ def calculate_mailing_time(receivers: int, accounts: int) -> str:
 
 
 def get_receivers_from_members(users: list[ChatMember]):
+    """ Get receivers usernames or phone numbers from ChatMember instances """
     return [
         '@' + u if u else '+' + p
         for chat in users
@@ -60,6 +71,7 @@ def get_receivers_from_members(users: list[ChatMember]):
 
 
 def get_receivers_from_users(users: list[User]):
+    """ Get receivers usernames or phone numbers from User instances """
     return [
         '@' + u if u else '+' + p
         for chat in users
@@ -69,6 +81,7 @@ def get_receivers_from_users(users: list[User]):
 
 
 async def clear_accounts_on_auth(accounts: list[Account]) -> list[Account]:
+    """ Searches for non-authenticated accounts """
     result = []
     for acc in accounts:    # type: Account
         client = create_client(acc.phone_number)
@@ -86,4 +99,4 @@ async def clear_accounts_on_auth(accounts: list[Account]) -> list[Account]:
 
 
 if __name__ == '__main__':
-    print(calculate_mailing_time(3, 2))
+    print(get_mailing_time(3, 2))

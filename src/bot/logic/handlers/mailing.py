@@ -39,7 +39,8 @@ async def restart_final_info(callback: CallbackQuery, manager: DialogManager,
     for acc in no_auth_accounts:
         manager.start_data['accounts'].remove(acc)
         await db.account.delete(acc.id)
-        text = cpt_txt.ACCOUNTS_DELETED_ON_AUTH.format(first_name=acc.first_name, phone_number=acc.phone_number)
+        text = cpt_txt.ACCOUNTS_DELETED_ON_AUTH.format(
+            first_name=acc.first_name, phone_number=acc.phone_number)
         await callback.bot.send_message(chat_id, text)
 
     accounts = manager.start_data.get('accounts')
@@ -68,7 +69,7 @@ async def start_mailing_handler(callback: CallbackQuery, button: Button,
         manager.bg(),
         accounts,
         receivers,
-        message.text,
+        message,
     ))
 
     await manager.next()
@@ -79,4 +80,3 @@ async def stop_mailing_handler(callback: CallbackQuery, button: Button,
     tasks = manager.dialog_data.get('tasks')
     for task in tasks:
         task.cancel()
-

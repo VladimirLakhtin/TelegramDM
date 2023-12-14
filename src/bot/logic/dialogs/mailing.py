@@ -3,6 +3,7 @@ from aiogram.enums import ContentType
 from aiogram_dialog import Window, Dialog
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Cancel, SwitchTo, Back, Row, Button, Select, Column, Next, Start
+from aiogram_dialog.widgets.media import DynamicMedia
 from aiogram_dialog.widgets.text import Const, Format, Multi, Progress
 from magic_filter import F
 
@@ -33,6 +34,7 @@ choose_message_win = Window(
 )
 
 confirm_message_win = Window(
+    DynamicMedia(selector='media'),
     Format('<b>{message.title}</b>\n\n{message.text}'),
     Row(
         Next(Const(btn_txt.CONFIRM)),

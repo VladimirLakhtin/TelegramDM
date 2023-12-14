@@ -62,5 +62,5 @@ class AccountRepo(Repository[Account]):
         account = await self.get(id)
         await super().delete(Account.id == id)
         filename = f'{account.phone_number}.session'
-        session_path = Path('sessions') / filename
+        session_path = Path('structures/sessions') / filename
         os.remove(session_path)

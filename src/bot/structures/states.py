@@ -36,6 +36,7 @@ class MessagesStatesGroup(StatesGroup):
     lst = State()
     input_title = State()
     input_text = State()
+    input_media = State()
     add = State()
     details = State()
     delete = State()

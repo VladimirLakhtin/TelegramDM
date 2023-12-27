@@ -32,6 +32,7 @@ class CaptureText:
     MESSAGES_MENU = """Меню сообщений"""
     MESSAGES_LIST = """Список сообщений"""
     MESSAGE_TITLE_INPUT = """Введите заголовок нового сообщения:"""
+    MESSAGE_TITLE_INPUT_UNIQUE = """Сообщение с данным заголовком уже существует"""
     MESSAGE_TEXT_INPUT = """Введите текст нового сообщения:"""
     MESSAGE_MEDIA_INPUT = """Отправьте изображение/видео нового сообщение, либо пропустите этот шаг:"""
     MESSAGE_INCORRECT_INPUT = """Сообщение должно быть исключительно текстовым"""

@@ -77,6 +77,6 @@ async def start_mailing_handler(callback: CallbackQuery, button: Button,
 
 async def stop_mailing_handler(callback: CallbackQuery, button: Button,
                                manager: DialogManager):
-    tasks = manager.dialog_data.get('tasks')
+    tasks = manager.dialog_data.get('tasks', [])
     for task in tasks:
         task.cancel()

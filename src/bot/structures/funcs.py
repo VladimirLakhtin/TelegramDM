@@ -6,7 +6,7 @@ import string
 
 from aiogram_dialog import SubManager
 from aiogram_dialog.widgets.kbd import ManagedCheckbox
-from pyrogram.errors import AuthKeyUnregistered
+from pyrogram.errors import AuthKeyUnregistered, AuthRestart
 from pyrogram.raw.functions.updates import GetState
 from pyrogram.types import User, ChatMember
 

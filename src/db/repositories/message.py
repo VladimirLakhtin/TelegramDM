@@ -19,8 +19,8 @@ class MessageRepo(Repository[Message]):
         self,
         title: str,
         text: str,
+        content_type: str,
         media_path: str = None,
-        content_type: str = None,
     ) -> None:
         """Insert a new messages into the database.
 
@@ -33,8 +33,8 @@ class MessageRepo(Repository[Message]):
             Message(
                 title=title,
                 text=text,
-                media_path=media_path,
                 content_type=content_type,
+                media_path=media_path,
             )
         )
         await self.session.commit()

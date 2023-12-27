@@ -3,11 +3,9 @@ from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message
 from aiogram_dialog import DialogManager
-from aiogram_dialog.widgets.kbd import Button
 
 from src.bot.structures.states import MenuStatesGroup
 from src.bot.logic.dialogs import router as dialog_router
-from src.db import Database, Account
 
 router = Router()
 router.include_router(dialog_router)

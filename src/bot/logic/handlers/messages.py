@@ -9,10 +9,18 @@ from src.bot.structures.funcs import get_slug
 from src.bot.structures.states import MessagesStatesGroup
 from src.db import Database, Message as Message_db
 from src.config import conf
+from src.bot.structures.text import CaptureText as cpt_txt
 
 
 async def input_message_title(message: Message, widget: MessageInput,
                               manager: DialogManager):
+    db: Database = manager.middleware_data.get('db')
+    title = message.text
+    exists = await db.message.get_by_where(Message_db.title == title)
+    if exists:
+        await message.answer(cpt_txt.MESSAGE_TITLE_INPUT_UNIQUE)
+        return
+
     manager.dialog_data['title'] = message.text
     await manager.next()
 
@@ -51,7 +59,8 @@ async def confirm_create_message(callback: CallbackQuery, button: Button,
     db: Database = manager.middleware_data.get('db')
     title = manager.dialog_data.get("title")
     text = manager.dialog_data.get("message")
-    file_id, _, content_type = manager.dialog_data.get("media", (None, None, None))
+    file_id, _, content_type = manager.dialog_data.get(
+        "media", (None, None, ContentType.TEXT))
 
     media_path = None
     if file_id:
@@ -64,8 +73,8 @@ async def confirm_create_message(callback: CallbackQuery, button: Button,
     await db.message.new(
         title=title,
         text=text,
-        media_path=media_path and str(media_path),
         content_type=content_type,
+        media_path=media_path and str(media_path),
     )
 
     if 'media' in manager.dialog_data:

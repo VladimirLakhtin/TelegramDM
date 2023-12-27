@@ -15,31 +15,31 @@ load_dotenv()
 class DatabaseConfig:
     """Database connection variables."""
 
-    # name: str | None = getenv('POSTGRES_DATABASE')
-    # user: str | None = getenv('POSTGRES_USER')
-    # password: str | None = getenv('POSTGRES_PASSWORD', None)
-    # port: int = int(getenv('POSTGRES_PORT', 5432))
-    # host: str = getenv('POSTGRES_HOST', 'db')
-    #
-    # driver: str = 'asyncpg'
-    # database_system: str = 'postgresql'
-    #
-    # def build_connection_str(self) -> str:
-    #     """This function build a connection string."""
-    #     return URL.create(
-    #         drivername=f'{self.database_system}+{self.driver}',
-    #         username=self.user,
-    #         database=self.name,
-    #         password=self.password,
-    #         port=self.port,
-    #         host=self.host,
-    #     ).render_as_string(hide_password=False)
+    name: str | None = getenv('POSTGRES_DATABASE')
+    user: str | None = getenv('POSTGRES_USER')
+    password: str | None = getenv('POSTGRES_PASSWORD', None)
+    port: int = int(getenv('POSTGRES_PORT', 5432))
+    host: str = getenv('POSTGRES_HOST', 'db')
 
-    path: str = Path(__file__).parent.parent / "db.sqlite3"
+    driver: str = 'asyncpg'
+    database_system: str = 'postgresql'
 
     def build_connection_str(self) -> str:
         """This function build a connection string."""
-        return f"sqlite+aiosqlite:///{self.path}"
+        return URL.create(
+            drivername=f'{self.database_system}+{self.driver}',
+            username=self.user,
+            database=self.name,
+            password=self.password,
+            port=self.port,
+            host=self.host,
+        ).render_as_string(hide_password=False)
+
+    # path: str = Path(__file__).parent.parent / "db.sqlite3"
+    #
+    # def build_connection_str(self) -> str:
+    #     """This function build a connection string."""
+    #     return f"sqlite+aiosqlite:///{self.path}"
 
 
 # @dataclass
